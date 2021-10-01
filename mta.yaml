@@ -1,0 +1,108 @@
+_schema-version: "3.2"
+ID: saasproductsmta
+version: 0.0.1
+modules:
+# - name: saasproductsmta-app-content
+#   type: com.sap.application.content
+#   path: .
+#   requires:
+#   - name: saasproductsmta-repo-host
+#     parameters:
+#       content-target: true
+#   build-parameters:
+#     build-result: resources
+#     requires:
+#     - artifacts:
+#       - miyasutauimodule.zip
+#       name: miyasutauimodule
+#       target-path: resources/
+# - name: miyasutauimodule
+#   type: html5
+#   path: uimodule
+#   build-parameters:
+#     build-result: dist
+#     builder: custom
+#     commands:
+#     - npm install
+#     - npm run build:cf
+#     supported-platforms: []
+- name: saasproductsmta-approuter
+  type: approuter.nodejs
+  path: saasproductsmta-approuter
+  requires:
+  - name: saasproductsmta_html_repo_runtime
+  - name: uaa_saasproductsmta
+  - name: saasproductsmta-dest-srv
+    group: destinations
+    properties:
+      forwardAuthToken: false
+      name: ui5
+      url: https://ui5.sap.com
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  # properties:
+  #   TENANT_HOST_PATTERN: ^(.*)-cfapps.eu10.hana.ondemand.com
+- name: saasproductsmta_ui_deployer
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: saasproductsmta-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - miyasutasaasorders.zip
+      name: miyasutasaasorders
+      target-path: resources/
+- name: miyasutasaasorders
+  type: html5
+  path: saasorders
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: saasproductsmta-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: saasproductsmta-html5-srv
+    service-plan: app-host
+- name: saasproductsmta-dest-srv
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: false
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: saasproductsmta-dest-srv
+    service-plan: lite
+- name: saasproductsmta_html_repo_runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
+- name: uaa_saasproductsmta
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: saasproductsmta-xsuaa-service
+    service-plan: application
+parameters:
+  deploy_mode: html5-repo
