@@ -1,6 +1,6 @@
 {
   "xsappname": "saasproductsmta",
-  "tenant-mode": "dedicated",
+r
   "description": "Security profile of called application",
   "scopes": [
     {

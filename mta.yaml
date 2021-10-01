@@ -41,8 +41,8 @@ modules:
   parameters:
     disk-quota: 256M
     memory: 256M
-  # properties:
-  #   TENANT_HOST_PATTERN: ^(.*)-cfapps.eu10.hana.ondemand.com
+  properties:
+    TENANT_HOST_PATTERN: ^(.*)-cfapps.eu10.hana.ondemand.com
 - name: saasproductsmta_ui_deployer
   type: com.sap.application.content
   path: .
